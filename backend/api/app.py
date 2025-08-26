@@ -22,8 +22,8 @@ def run_in_docker(language, code):
             [
                 "docker", "run", "-i", "--rm",
                 "--network", "none",
-                "--cpus", "0.5", "-m", "256m", "--pids-limit", "64",
-                "-v", f"{tmpdir}:/tmp",
+                "--cpus", "1", "-m", "256m", "--pids-limit", "64",
+#                "-v", f"{tmpdir}:/tmp",
                 IMAGE_MAP[language]
             ],
             input=json.dumps({"code": code}).encode(),
@@ -35,7 +35,9 @@ def run_in_docker(language, code):
     except Exception as e:
         return {"error": str(e)}
     finally:
-        subprocess.run(["rm", "-rf", tmpdir])
+ #       subprocess.run(["rm", "-rf", tmpdir])
+        if os.path.exists(tmpdir):
+            subprocess.run(["rm", "-rf", tmpdir], check=False)
 
 @app.route("/run/<language>", methods=["POST"])
 def run_code(language):
