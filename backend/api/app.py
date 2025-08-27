@@ -12,10 +12,10 @@ IMAGE_MAP = {
     "java": "code-runner-java"
 }
 
-def run_in_docker(language, code):
+def run_in_docker(language, code,user_input=""):
     if language not in IMAGE_MAP:
         return {"error": "Unsupported language"}
-
+    print("api to docker: ",user_input);
     tmpdir = tempfile.mkdtemp()
     try:
         result = subprocess.run(
@@ -26,7 +26,7 @@ def run_in_docker(language, code):
 #                "-v", f"{tmpdir}:/tmp",
                 IMAGE_MAP[language]
             ],
-            input=json.dumps({"code": code}).encode(),
+            input=json.dumps({"code": code,"input":user_input}).encode(),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             timeout=10
@@ -42,9 +42,10 @@ def run_in_docker(language, code):
 @app.route("/run/<language>", methods=["POST"])
 def run_code(language):
     payload = request.get_json(force=True)
-    code = payload.get("code", "")
-    return jsonify(run_in_docker(language, code))
+    code = payload.get("code", "") #Get Code
+    user_input = payload.get("input","") #Get User Input
+    print("payload: ",user_input)
+    return jsonify(run_in_docker(language, code,user_input))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
