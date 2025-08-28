@@ -40,6 +40,7 @@ function App() {
   const [userInput, setUserInput] = useState("");
   const [showInput, setShowInput] = useState(false);
   const editorRef = useRef(null);
+  const [outputColor, setOutputColor] = useState("#28a745");
 
   const languages = [
     {
@@ -60,7 +61,7 @@ function App() {
       icon: (
         <img
           src="https://cdn-icons-png.flaticon.com/512/226/226777.png"
-          alt="Python Icon"
+          alt="Java Icon"
           style={{ width: "24px", height: "24px" }}
         />
       ),
@@ -74,7 +75,7 @@ function App() {
       icon: (
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/ISO_C%2B%2B_Logo.svg/1822px-ISO_C%2B%2B_Logo.svg.png"
-          alt="Python Icon"
+          alt="CPP Icon"
           style={{ width: "24px", height: "24px" }}
         />
       ),
@@ -119,18 +120,23 @@ function App() {
       const data = await response.json();
       console.log(data);
       if (data && data.stderr) {
+        setOutputColor("#e46962");
         setError(data.stderr);
-        setOutput(error);
+        setOutput(data.stderr);
         // alert(error);
+      } else if (data && data.error) {
+        setOutputColor("#e46962");
+        setOutput(data.error);
+      } else if (data && typeof data.stdout !== "undefined") {
+        setOutputColor("#28a745");
+        setOutput(`[${timestamp}] Starting execution...\n${data.stdout}`);
       } else {
-        if (data && typeof data.stdout !== "undefined") {
-          setOutput(`[${timestamp}] Starting execution...\n${data.stdout}`);
-        } else {
-          setOutput("⏱️ Error: Execution timer out'.");
-        }
+        setOutputColor("#e46962");
+        setOutput("⏱️ Error: Execution timer out'.");
       }
     } catch (error) {
       // setOutput(`⚠️ Execution failed: ${error.message}`);
+      setOutputColor("#e46962");
       setOutput(error.message);
     } finally {
       setIsRunning(false);
@@ -822,7 +828,8 @@ function App() {
                 padding: "16px 24px",
                 fontFamily: "JetBrains Mono, Monaco, Consolas, monospace",
                 fontSize: "13px",
-                color: theme === "vs-dark" ? "#4ec9b0" : "#198754",
+                // color: theme === "vs-dark" ? outputColor : "#198754",
+                color: outputColor,
                 backgroundColor: theme === "vs-dark" ? "#1e1e1e" : "#f8f9fa",
                 overflow: "auto",
                 lineHeight: "1.5",
