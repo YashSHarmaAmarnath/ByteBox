@@ -1,156 +1,177 @@
-"use client"
+"use client";
 
 import { useState, useRef } from "react";
 import { Editor } from "@monaco-editor/react";
-import { CodeXml, Settings,Sun, Moon,FileTerminal,Plus,Text,Play,Hourglass,Terminal,FileInput,Lightbulb,Trash2 } from 'lucide-react';
+import {
+  CodeXml,
+  Settings,
+  Sun,
+  Moon,
+  FileTerminal,
+  Plus,
+  Text,
+  Play,
+  Hourglass,
+  Terminal,
+  FileInput,
+  Lightbulb,
+  Trash2,
+} from "lucide-react";
+
 function App() {
-  const baseUrl = "http://localhost:5000/run/"
-  const [lang, setLang] = useState("python")
-  const [theme, setTheme] = useState("vs-dark")
-  const [code, setCode] = useState("")
-  const [output, setOutput] = useState("")
-  const [showOutput, setShowOutput] = useState(false)
+  const baseUrl = "http://localhost:5000/run/";
+  const [lang, setLang] = useState("python");
+  const [theme, setTheme] = useState("vs-dark");
+  const [code, setCode] = useState("");
+  const [output, setOutput] = useState("");
+  const [showOutput, setShowOutput] = useState(false);
   // const [outputExpanded, setOutputExpanded] = useState(false);
-  const [isRunning, setIsRunning] = useState(false)
-  const [fontSize, setFontSize] = useState(14)
-  const [showSettings, setShowSettings] = useState(false)
-  const [wordWrap, setWordWrap] = useState(true)
-  const [minimap, setMinimap] = useState(true)
-  const [lineNumbers, setLineNumbers] = useState(true)
-  const [currentFile, setCurrentFile] = useState("main")
+  const [isRunning, setIsRunning] = useState(false);
+  const [fontSize, setFontSize] = useState(14);
+  const [showSettings, setShowSettings] = useState(false);
+  const [wordWrap, setWordWrap] = useState(true);
+  const [minimap, setMinimap] = useState(true);
+  const [lineNumbers, setLineNumbers] = useState(true);
+  const [currentFile, setCurrentFile] = useState("main");
   const [files, setFiles] = useState({
     main: "",
-  })
-  const [error, setError] = useState("")
-  const [userInput, setUserInput] = useState("")
-  const [showInput, setShowInput] = useState(false)
-  const editorRef = useRef(null)
+  });
+  const [error, setError] = useState("");
+  const [userInput, setUserInput] = useState("");
+  const [showInput, setShowInput] = useState(false);
+  const editorRef = useRef(null);
 
   const languages = [
     {
       id: "python",
       name: "Python",
-      icon: <img
-        src="https://cdn-icons-png.flaticon.com/128/5968/5968350.png"
-        alt="Python Icon"
-        style={{ width: '24px', height: '24px' }}
-      />,
+      icon: (
+        <img
+          src="https://cdn-icons-png.flaticon.com/128/5968/5968350.png"
+          alt="Python Icon"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
       defaultCode: '# Python code\nprint("Hello, Python!")\n',
     },
     {
       id: "java",
       name: "Java",
-      icon: <img
-        src="https://cdn-icons-png.flaticon.com/512/226/226777.png"
-        alt="Python Icon"
-        style={{ width: '24px', height: '24px' }}
-      />,
+      icon: (
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/226/226777.png"
+          alt="Python Icon"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
       defaultCode:
-      '// Java code\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Java!");\n    }\n}',
+        '// Java code\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Java!");\n    }\n}',
     },
     {
       id: "cpp",
       name: "C++",
       // icon: "⚡",
-      icon: <img
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/ISO_C%2B%2B_Logo.svg/1822px-ISO_C%2B%2B_Logo.svg.png"
-        alt="Python Icon"
-        style={{ width: '24px', height: '24px' }}
-      />,
+      icon: (
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/ISO_C%2B%2B_Logo.svg/1822px-ISO_C%2B%2B_Logo.svg.png"
+          alt="Python Icon"
+          style={{ width: "24px", height: "24px" }}
+        />
+      ),
       defaultCode:
         '// C++ code\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, C++!" << endl;\n    return 0;\n}',
     },
-  ]
+  ];
 
   const handleLanguageChange = (newLang, defaultCode) => {
-    setLang(newLang)
-    setCode(defaultCode)
-    setFiles((prev) => ({ ...prev, [currentFile]: defaultCode }))
-  }
+    setLang(newLang);
+    setCode(defaultCode);
+    setFiles((prev) => ({ ...prev, [currentFile]: defaultCode }));
+  };
 
   const toggleTheme = () => {
-    setTheme(theme === "vs-dark" ? "light" : "vs-dark")
-  }
+    setTheme(theme === "vs-dark" ? "light" : "vs-dark");
+  };
 
   const handleRun = async () => {
-    setIsRunning(true)
-    setShowOutput(true)
-    setOutput("")
+    setIsRunning(true);
+    setShowOutput(true);
+    setOutput("");
 
-    const timestamp = new Date().toLocaleString()
-    const url = baseUrl + lang
+    const timestamp = new Date().toLocaleString();
+    const url = baseUrl + lang;
     const payload = {
       code: code,
       input: userInput, // Send user input along with code
-    }
+    };
 
-    console.log(url)
-    console.log(code)
-    console.log(`[${timestamp}] Starting execution...`)
+    console.log(url);
+    console.log(code);
+    console.log(`[${timestamp}] Starting execution...`);
 
     try {
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      })
+      });
 
-      const data = await response.json()
-      console.log(data)
+      const data = await response.json();
+      console.log(data);
       if (data && data.stderr) {
-        setError(data.stderr)
-        setOutput(error)
+        setError(data.stderr);
+        setOutput(error);
         // alert(error);
       } else {
         if (data && typeof data.stdout !== "undefined") {
-          setOutput(`[${timestamp}] Starting execution...\n${data.stdout}`)
+          setOutput(`[${timestamp}] Starting execution...\n${data.stdout}`);
         } else {
-          setOutput("⏱️ Error: Execution timer out'.")
+          setOutput("⏱️ Error: Execution timer out'.");
         }
       }
     } catch (error) {
       // setOutput(`⚠️ Execution failed: ${error.message}`);
-      setOutput(error.message)
+      setOutput(error.message);
     } finally {
-      setIsRunning(false)
+      setIsRunning(false);
     }
-  }
+  };
 
   const handleEditorDidMount = (editor, monaco) => {
-    editorRef.current = editor
-  }
+    editorRef.current = editor;
+  };
 
   const createNewFile = () => {
-    const fileName = prompt("Enter file name:")
+    const fileName = prompt("Enter file name:");
     if (fileName && !files[fileName]) {
-      const currentLang = languages.find((l) => l.id === lang)
+      const currentLang = languages.find((l) => l.id === lang);
       setFiles((prev) => ({
         ...prev,
         [fileName]: currentLang?.defaultCode || "",
-      }))
-      setCurrentFile(fileName)
-      setCode(currentLang?.defaultCode || "")
+      }));
+      setCurrentFile(fileName);
+      setCode(currentLang?.defaultCode || "");
     }
-  }
+  };
 
   const deleteFile = (fileName) => {
-    if (fileName === "main") return // Don't delete main file
+    if (fileName === "main") return; // Don't delete main file
     if (confirm(`Delete file "${fileName}"?`)) {
-      const newFiles = { ...files }
-      delete newFiles[fileName]
-      setFiles(newFiles)
+      const newFiles = { ...files };
+      delete newFiles[fileName];
+      setFiles(newFiles);
       if (currentFile === fileName) {
-        setCurrentFile("main")
-        setCode(files.main)
+        setCurrentFile("main");
+        setCode(files.main);
       }
     }
-  }
+  };
 
   const switchFile = (fileName) => {
-    setFiles((prev) => ({ ...prev, [currentFile]: code }))
-    setCurrentFile(fileName)
-    setCode(files[fileName])
-  }
+    setFiles((prev) => ({ ...prev, [currentFile]: code }));
+    setCurrentFile(fileName);
+    setCode(files[fileName]);
+  };
 
   return (
     <div
@@ -165,7 +186,7 @@ function App() {
       {/* Header */}
       <div
         style={{
-          backgroundColor: theme === "vs-dark" ? "#0D0D0D" : "#ffffff",
+          backgroundColor: theme === "vs-dark" ? "#202223" : "#ffffff",
           padding: "12px 24px",
           display: "flex",
           alignItems: "center",
@@ -221,15 +242,17 @@ function App() {
               transition: "all 0.2s ease",
             }}
             onMouseOver={(e) => {
-              e.target.style.backgroundColor = theme === "vs-dark" ? "#00beb8ff" : "#d6d8db"
-              e.target.style.transform = "scale(1.05)"
+              e.target.style.backgroundColor =
+                theme === "vs-dark" ? "#00beb8ff" : "#d6d8db";
+              e.target.style.transform = "scale(1.05)";
             }}
             onMouseOut={(e) => {
-              e.target.style.backgroundColor = theme === "vs-dark" ? "#3c3c3c" : "#e9ecef"
-              e.target.style.transform = "scale(1)"
+              e.target.style.backgroundColor =
+                theme === "vs-dark" ? "#3c3c3c" : "#e9ecef";
+              e.target.style.transform = "scale(1)";
             }}
           >
-            <Settings size={14}/> Settings
+            <Settings size={14} /> Settings
           </button>
 
           <button
@@ -245,14 +268,18 @@ function App() {
             }}
             onMouseOver={(e) => {
               // e.target.style.backgroundColor = theme === "vs-dark" ? "#4a4a4a" : "#d6d8db"
-              e.target.style.transform = "scale(1.05)"
+              e.target.style.transform = "scale(1.05)";
             }}
             onMouseOut={(e) => {
               // e.target.style.backgroundColor = theme === "vs-dark" ? "#3c3c3c" : "#e9ecef"
-              e.target.style.transform = "scale(1)"
+              e.target.style.transform = "scale(1)";
             }}
           >
-            {theme === "vs-dark" ? <Sun size={24}/> : <Moon color="#000000" size={24}/>} 
+            {theme === "vs-dark" ? (
+              <Sun size={24} />
+            ) : (
+              <Moon color="#000000" size={24} />
+            )}
           </button>
         </div>
       </div>
@@ -262,7 +289,7 @@ function App() {
         <div
           style={{
             backgroundColor: theme === "vs-dark" ? "#252526" : "#f8f9fa",
-            // borderBottom: `1px solid ${theme === "vs-dark" ? "#0D0D0D" : "#e9ecef"}`,
+            // borderBottom: `1px solid ${theme === "vs-dark" ? "#202223" : "#e9ecef"}`,
             padding: "16px 24px",
           }}
         >
@@ -304,7 +331,11 @@ function App() {
                   fontSize: "14px",
                 }}
               >
-                <input type="checkbox" checked={wordWrap} onChange={(e) => setWordWrap(e.target.checked)} />
+                <input
+                  type="checkbox"
+                  checked={wordWrap}
+                  onChange={(e) => setWordWrap(e.target.checked)}
+                />
                 Word Wrap
               </label>
 
@@ -316,7 +347,11 @@ function App() {
                   fontSize: "14px",
                 }}
               >
-                <input type="checkbox" checked={minimap} onChange={(e) => setMinimap(e.target.checked)} />
+                <input
+                  type="checkbox"
+                  checked={minimap}
+                  onChange={(e) => setMinimap(e.target.checked)}
+                />
                 Minimap
               </label>
 
@@ -328,7 +363,11 @@ function App() {
                   fontSize: "14px",
                 }}
               >
-                <input type="checkbox" checked={lineNumbers} onChange={(e) => setLineNumbers(e.target.checked)} />
+                <input
+                  type="checkbox"
+                  checked={lineNumbers}
+                  onChange={(e) => setLineNumbers(e.target.checked)}
+                />
                 Line Numbers
               </label>
             </div>
@@ -339,8 +378,8 @@ function App() {
       {/* File Tabs */}
       <div
         style={{
-          backgroundColor: theme === "vs-dark" ? "#0D0D0D" : "#ffffff",
-          // borderBottom: `1px solid ${theme === "vs-dark" ? "#0D0D0D" : "#e9ecef"}`,
+          backgroundColor: theme === "vs-dark" ? "#202223" : "#ffffff",
+          // borderBottom: `1px solid ${theme === "vs-dark" ? "#202223" : "#e9ecef"}`,
           padding: "8px 24px",
           display: "flex",
           alignItems: "center",
@@ -357,12 +396,22 @@ function App() {
               gap: "6px",
               padding: "6px 12px",
               borderRadius: "6px",
-              backgroundColor: currentFile === fileName ? (theme === "vs-dark" ? "#007acc" : "#0066cc") : "transparent",
-              color: currentFile === fileName ? "#ffffff" : theme === "vs-dark" ? "#cccccc" : "#666666",
+              backgroundColor:
+                currentFile === fileName
+                  ? theme === "vs-dark"
+                    ? "#007acc"
+                    : "#0066cc"
+                  : "transparent",
+              color:
+                currentFile === fileName
+                  ? "#ffffff"
+                  : theme === "vs-dark"
+                  ? "#cccccc"
+                  : "#666666",
               cursor: "pointer",
               fontSize: "14px",
               whiteSpace: "nowrap",
-              // border: currentFile === fileName ? "none" : `1px solid ${theme === "vs-dark" ? "#0D0D0D" : "#e9ecef"}`,
+              // border: currentFile === fileName ? "none" : `1px solid ${theme === "vs-dark" ? "#202223" : "#e9ecef"}`,
               transition: "all 0.2s ease",
             }}
             onClick={() => switchFile(fileName)}
@@ -371,8 +420,8 @@ function App() {
             {fileName !== "main" && (
               <button
                 onClick={(e) => {
-                  e.stopPropagation()
-                  deleteFile(fileName)
+                  e.stopPropagation();
+                  deleteFile(fileName);
                 }}
                 style={{
                   background: "none",
@@ -395,7 +444,7 @@ function App() {
           style={{
             padding: "6px 12px",
             borderRadius: "6px",
-            // border: `1px solid ${theme === "vs-dark" ? "#0D0D0D" : "#e9ecef"}`,
+            // border: `1px solid ${theme === "vs-dark" ? "#202223" : "#e9ecef"}`,
             backgroundColor: "transparent",
             color: theme === "vs-dark" ? "#cccccc" : "#666666",
             cursor: "pointer",
@@ -403,15 +452,15 @@ function App() {
             whiteSpace: "nowrap",
           }}
         >
-          <Plus/>
+          <Plus />
         </button>
       </div>
 
       {/* Toolbar */}
       <div
         style={{
-          backgroundColor: theme === "vs-dark" ? "#0D0D0D" : "#ffffff",
-          // borderBottom: `1px solid ${theme === "vs-dark" ? "#0D0D0D" : "#e9ecef"}`,
+          backgroundColor: theme === "vs-dark" ? "#202223" : "#ffffff",
+          // borderBottom: `1px solid ${theme === "vs-dark" ? "#202223" : "#e9ecef"}`,
           padding: "12px 24px",
         }}
       >
@@ -445,7 +494,9 @@ function App() {
             {languages.map((language) => (
               <button
                 key={language.id}
-                onClick={() => handleLanguageChange(language.id, language.defaultCode)}
+                onClick={() =>
+                  handleLanguageChange(language.id, language.defaultCode)
+                }
                 style={{
                   padding: "8px 16px",
                   borderRadius: "8px",
@@ -463,10 +514,18 @@ function App() {
                         ? "#007acc"
                         : "#0066cc"
                       : theme === "vs-dark"
-                        ? "#3c3c3c"
-                        : "#e9ecef",
-                  color: lang === language.id ? "#ffffff" : theme === "vs-dark" ? "#ffffff" : "#212529",
-                  boxShadow: lang === language.id ? "0 2px 8px rgba(0, 153, 254, 1)" : "none",
+                      ? "#3c3c3c"
+                      : "#e9ecef",
+                  color:
+                    lang === language.id
+                      ? "#ffffff"
+                      : theme === "vs-dark"
+                      ? "#ffffff"
+                      : "#212529",
+                  boxShadow:
+                    lang === language.id
+                      ? "0 2px 8px rgba(0, 153, 254, 1)"
+                      : "none",
                 }}
               >
                 <span>{language.icon}</span>
@@ -495,12 +554,18 @@ function App() {
                     ? "#007acc"
                     : "#0066cc"
                   : theme === "vs-dark"
-                    ? "#3c3c3c"
-                    : "#e9ecef",
-                color: showInput ? "#ffffff" : theme === "vs-dark" ? "#ffffff" : "#212529",
+                  ? "#3c3c3c"
+                  : "#e9ecef",
+                color: showInput
+                  ? "#ffffff"
+                  : theme === "vs-dark"
+                  ? "#ffffff"
+                  : "#212529",
               }}
             >
-              <span><Text/></span>
+              <span>
+                <Text />
+              </span>
               <span>{showInput ? "Hide Input" : "Show Input"}</span>
             </button>
 
@@ -521,7 +586,9 @@ function App() {
                 transition: "all 0.2s ease",
                 backgroundColor: isRunning ? "#6c757d" : "#28a745",
                 color: "#ffffff",
-                boxShadow: isRunning ? "none" : "0 2px 8px rgba(40, 167, 69, 0.3)",
+                boxShadow: isRunning
+                  ? "none"
+                  : "0 2px 8px rgba(40, 167, 69, 0.3)",
               }}
             >
               <span
@@ -530,7 +597,7 @@ function App() {
                   animation: isRunning ? "spin 1s linear infinite" : "none",
                 }}
               >
-                {isRunning ? <Hourglass /> : <Play/>}
+                {isRunning ? <Hourglass /> : <Play />}
               </span>
               <span>{isRunning ? "Running..." : "Run Code"}</span>
             </button>
@@ -542,7 +609,7 @@ function App() {
         <div
           style={{
             backgroundColor: theme === "vs-dark" ? "#252526" : "#f8f9fa",
-            // borderBottom: `1px solid ${theme === "vs-dark" ? "#0D0D0D" : "#e9ecef"}`,
+            // borderBottom: `1px solid ${theme === "vs-dark" ? "#202223" : "#e9ecef"}`,
             padding: "16px 24px",
           }}
         >
@@ -556,7 +623,7 @@ function App() {
                 color: theme === "vs-dark" ? "#ffffff" : "#212529",
               }}
             >
-              <FileInput size={16}/> Program Input (stdin):
+              <FileInput size={16} /> Program Input (stdin):
             </label>
             <textarea
               value={userInput}
@@ -567,7 +634,7 @@ function App() {
                 minHeight: "80px",
                 padding: "12px",
                 borderRadius: "6px",
-                // border: `1px solid ${theme === "vs-dark" ? "#0D0D0D" : "#e9ecef"}`,
+                // border: `1px solid ${theme === "vs-dark" ? "#202223" : "#e9ecef"}`,
                 backgroundColor: theme === "vs-dark" ? "#1e1e1e" : "#ffffff",
                 color: theme === "vs-dark" ? "#ffffff" : "#212529",
                 fontFamily: "JetBrains Mono, Monaco, Consolas, monospace",
@@ -583,7 +650,8 @@ function App() {
                 marginTop: "4px",
               }}
             >
-              <Lightbulb size={16}/>  Tip: For programs that need multiple inputs, enter each value on a new line
+              <Lightbulb size={16} /> Tip: For programs that need multiple
+              inputs, enter each value on a new line
             </div>
           </div>
         </div>
@@ -603,7 +671,7 @@ function App() {
             flex: showOutput ? "1" : "1",
             width: showOutput ? "50%" : "100%",
             position: "relative",
-            // borderRight: showOutput ? `1px solid ${theme === "vs-dark" ? "#0D0D0D" : "#e9ecef"}` : "none",
+            // borderRight: showOutput ? `1px solid ${theme === "vs-dark" ? "#202223" : "#e9ecef"}` : "none",
           }}
         >
           <div
@@ -616,12 +684,16 @@ function App() {
               borderRadius: "6px",
               fontSize: "12px",
               fontFamily: "monospace",
-              backgroundColor: theme === "vs-dark" ? "rgba(45, 45, 48, 0.9)" : "rgba(248, 249, 250, 0.9)",
+              backgroundColor:
+                theme === "vs-dark"
+                  ? "rgba(45, 45, 48, 0.9)"
+                  : "rgba(248, 249, 250, 0.9)",
               color: theme === "vs-dark" ? "#cccccc" : "#666666",
               backdropFilter: "blur(4px)",
             }}
           >
-            {languages.find((l) => l.id === lang)?.name || "Select Language"} • {currentFile}
+            {languages.find((l) => l.id === lang)?.name || "Select Language"} •{" "}
+            {currentFile}
           </div>
 
           <Editor
@@ -633,7 +705,8 @@ function App() {
             onMount={handleEditorDidMount}
             options={{
               fontSize: fontSize,
-              fontFamily: "JetBrains Mono, Fira Code, Monaco, Consolas, monospace",
+              fontFamily:
+                "JetBrains Mono, Fira Code, Monaco, Consolas, monospace",
               minimap: { enabled: minimap },
               scrollBeyondLastLine: false,
               automaticLayout: true,
@@ -673,13 +746,19 @@ function App() {
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "8px 24px",
-                backgroundColor: theme === "vs-dark" ? "#0D0D0D" : "#ffffff",
-                // borderBottom: `1px solid ${theme === "vs-dark" ? "#0D0D0D" : "#e9ecef"}`,
+                backgroundColor: theme === "vs-dark" ? "#202223" : "#ffffff",
+                // borderBottom: `1px solid ${theme === "vs-dark" ? "#202223" : "#e9ecef"}`,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "16px" }}><Terminal /></span>
-                <span style={{ fontSize: "14px", fontWeight: "500" }}>Output</span>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <span style={{ fontSize: "16px" }}>
+                  <Terminal />
+                </span>
+                <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                  Output
+                </span>
                 {isRunning && (
                   <div style={{ display: "flex", gap: "4px" }}>
                     {[0, 1, 2].map((i) => (
@@ -690,7 +769,9 @@ function App() {
                           height: "6px",
                           borderRadius: "50%",
                           backgroundColor: "#28a745",
-                          animation: `bounce 1.4s ease-in-out ${i * 0.16}s infinite both`,
+                          animation: `bounce 1.4s ease-in-out ${
+                            i * 0.16
+                          }s infinite both`,
                         }}
                       />
                     ))}
@@ -698,7 +779,9 @@ function App() {
                 )}
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
                 <button
                   onClick={() => setOutput("")}
                   style={{
@@ -746,12 +829,16 @@ function App() {
               }}
             >
               {isRunning ? (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
                   <div
                     style={{
                       width: "16px",
                       height: "16px",
-                      border: `2px solid ${theme === "vs-dark" ? "#4ec9b0" : "#198754"}`,
+                      border: `2px solid ${
+                        theme === "vs-dark" ? "#4ec9b0" : "#198754"
+                      }`,
                       borderTop: "2px solid transparent",
                       borderRadius: "50%",
                       animation: "spin 1s linear infinite",
@@ -789,7 +876,7 @@ function App() {
         }
       `}</style>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
