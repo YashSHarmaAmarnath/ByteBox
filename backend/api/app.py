@@ -9,13 +9,13 @@ CORS(app)
 IMAGE_MAP = {
     "python": "code-runner-python",
     "cpp": "code-runner-cpp",
-    "java": "code-runner-java"
+    "java": "code-runner-java",
+    "go": "code-runner-go",
 }
 
 def run_in_docker(language, code,user_input=""):
     if language not in IMAGE_MAP:
         return {"error": "Unsupported language"}
-    print("api to docker: ",user_input);
     tmpdir = tempfile.mkdtemp()
     try:
         result = subprocess.run(
@@ -29,7 +29,7 @@ def run_in_docker(language, code,user_input=""):
             input=json.dumps({"code": code,"input":user_input}).encode(),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=10
+            timeout=10,
         )
         return json.loads(result.stdout or "{}")
     except Exception as e:
@@ -44,7 +44,6 @@ def run_code(language):
     payload = request.get_json(force=True)
     code = payload.get("code", "") #Get Code
     user_input = payload.get("input","") #Get User Input
-    print("payload: ",user_input)
     return jsonify(run_in_docker(language, code,user_input))
 
 if __name__ == "__main__":
